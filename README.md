@@ -4,7 +4,7 @@ FileMutex is similar to `sync.RWMutex`, but also synchronizes across processes.
 On Linux, OSX, and other POSIX systems it uses the flock system call. On windows
 it uses the LockFileEx and UnlockFileEx system calls.
 
-```golang
+```go
 import (
 	"log"
 	"github.com/alexflint/go-filemutex"
