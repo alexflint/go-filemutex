@@ -1,0 +1,10 @@
+FileMutex is similar to sync.RWMutex, but also synchronizes across processes.
+On POSIX systems it uses the flock system call. On windows it uses the LockFileEx
+and UnlockFileEx system calls. There is no implementation for Plan 9, Solaris, 
+or NaCL.
+
+Copyright 2013 The Go Authors. All rights reserved.
+Use of this source code is governed by a BSD-style
+license that can be found in the LICENSE file.
+
+Forked from https://github.com/golang/build/tree/master/cmd/builder/filemutex_*.go
