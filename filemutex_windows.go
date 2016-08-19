@@ -55,7 +55,7 @@ func New(filename string) (*FileMutex, error) {
 	fd, err := syscall.CreateFile(&(syscall.StringToUTF16(filename)[0]), syscall.GENERIC_READ|syscall.GENERIC_WRITE,
 		syscall.FILE_SHARE_READ|syscall.FILE_SHARE_WRITE, nil, syscall.OPEN_ALWAYS, syscall.FILE_ATTRIBUTE_NORMAL, 0)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	return &FileMutex{fd: fd}, nil
 }
