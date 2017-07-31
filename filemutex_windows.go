@@ -47,8 +47,9 @@ func unlockFileEx(h syscall.Handle, reserved, locklow, lockhigh uint32, ol *sysc
 // FileMutex is similar to sync.RWMutex, but also synchronizes across processes.
 // This implementation is based on flock syscall.
 type FileMutex struct {
-	mu sync.RWMutex
-	fd syscall.Handle
+	mu   sync.RWMutex
+	fd   syscall.Handle
+	path string
 }
 
 func New(filename string) (*FileMutex, error) {
@@ -57,7 +58,7 @@ func New(filename string) (*FileMutex, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &FileMutex{fd: fd}, nil
+	return &FileMutex{fd: fd, path: filename}, nil
 }
 
 func (m *FileMutex) Lock() {
@@ -90,4 +91,17 @@ func (m *FileMutex) RUnlock() {
 		panic(err)
 	}
 	m.mu.RUnlock()
+}
+
+// Close does an Unlock() combined with closing and unlinking the associated
+// lock file. You should create a New() FileMutex for every Lock() attempt if
+// using Close().
+func (m *FileMutex) Close() {
+	var ol syscall.Overlapped
+	if err := unlockFileEx(m.fd, 0, 1, 0, &ol); err != nil {
+		panic(err)
+	}
+	syscall.Close(m.fd)
+	syscall.Unlink(m.path)
+	m.mu.Unlock()
 }
