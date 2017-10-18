@@ -1,7 +1,6 @@
 package filemutex
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -33,7 +32,6 @@ func TestRLockUnlock(t *testing.T) {
 
 	path := filepath.Join(dir, "x")
 	m, err := New(path)
-	fmt.Println(path)
 	require.NoError(t, err)
 
 	err = m.RLock()
