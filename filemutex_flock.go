@@ -30,30 +30,36 @@ func New(filename string) (*FileMutex, error) {
 	return &FileMutex{fd: fd}, nil
 }
 
-func (m *FileMutex) Lock() {
+func (m *FileMutex) Lock() error {
 	m.mu.Lock()
 	if err := syscall.Flock(m.fd, syscall.LOCK_EX); err != nil {
-		panic(err)
+		m.mu.Unlock()
+		return err
 	}
+	return nil
 }
 
-func (m *FileMutex) Unlock() {
+func (m *FileMutex) Unlock() error {
 	if err := syscall.Flock(m.fd, syscall.LOCK_UN); err != nil {
-		panic(err)
+		return err
 	}
 	m.mu.Unlock()
+	return nil
 }
 
-func (m *FileMutex) RLock() {
+func (m *FileMutex) RLock() error {
 	m.mu.RLock()
 	if err := syscall.Flock(m.fd, syscall.LOCK_SH); err != nil {
-		panic(err)
+		m.mu.RUnlock()
+		return err
 	}
+	return nil
 }
 
-func (m *FileMutex) RUnlock() {
+func (m *FileMutex) RUnlock() error {
 	if err := syscall.Flock(m.fd, syscall.LOCK_UN); err != nil {
-		panic(err)
+		return err
 	}
 	m.mu.RUnlock()
+	return nil
 }
