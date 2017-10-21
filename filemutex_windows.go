@@ -60,6 +60,10 @@ func New(filename string) (*FileMutex, error) {
 	return &FileMutex{fd: fd}, nil
 }
 
+func (m *FileMutex) Close() error {
+	return syscall.CloseHandle(m.fd)
+}
+
 func (m *FileMutex) Lock() error {
 	m.mu.Lock()
 	var ol syscall.Overlapped
