@@ -30,6 +30,10 @@ func New(filename string) (*FileMutex, error) {
 	return &FileMutex{fd: fd}, nil
 }
 
+func (m *FileMutex) Close() error {
+	return syscall.Close(m.fd)
+}
+
 func (m *FileMutex) Lock() error {
 	m.mu.Lock()
 	if err := syscall.Flock(m.fd, syscall.LOCK_EX); err != nil {

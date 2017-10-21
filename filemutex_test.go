@@ -23,6 +23,9 @@ func TestLockUnlock(t *testing.T) {
 	require.NoError(t, err)
 	err = m.Unlock()
 	require.NoError(t, err)
+
+	err = m.Close()
+	require.NoError(t, err)
 }
 
 func TestRLockUnlock(t *testing.T) {
