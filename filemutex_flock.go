@@ -28,36 +28,40 @@ func New(filename string) (*FileMutex, error) {
 	return &FileMutex{fd: fd}, nil
 }
 
-func (m *FileMutex) Lock() {
+func (m *FileMutex) Lock() error {
 	if err := syscall.Flock(m.fd, syscall.LOCK_EX); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func (m *FileMutex) Unlock() {
+func (m *FileMutex) Unlock() error {
 	if err := syscall.Flock(m.fd, syscall.LOCK_UN); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func (m *FileMutex) RLock() {
+func (m *FileMutex) RLock() error {
 	if err := syscall.Flock(m.fd, syscall.LOCK_SH); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func (m *FileMutex) RUnlock() {
+func (m *FileMutex) RUnlock() error {
 	if err := syscall.Flock(m.fd, syscall.LOCK_UN); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 // Close does an Unlock() combined with closing and unlinking the associated
 // lock file. You should create a New() FileMutex for every Lock() attempt if
 // using Close().
-func (m *FileMutex) Close() {
+func (m *FileMutex) Close() error {
 	if err := syscall.Flock(m.fd, syscall.LOCK_UN); err != nil {
-		panic(err)
+		return err
 	}
-	syscall.Close(m.fd)
+	return syscall.Close(m.fd)
 }
