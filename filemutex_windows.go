@@ -87,6 +87,7 @@ func (m *FileMutex) RUnlock() error {
 	if err := unlockFileEx(m.fd, 0, 1, 0, &ol); err != nil {
 		return err
 	}
+	return nil
 }
 
 // Close does an Unlock() combined with closing and unlinking the associated
