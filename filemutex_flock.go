@@ -7,7 +7,6 @@
 package filemutex
 
 import (
-	"sync"
 	"syscall"
 )
 
@@ -18,7 +17,6 @@ const (
 // FileMutex is similar to sync.RWMutex, but also synchronizes across processes.
 // This implementation is based on flock syscall.
 type FileMutex struct {
-	mu   sync.RWMutex
 	fd   int
 	path string
 }
@@ -32,7 +30,6 @@ func New(filename string) (*FileMutex, error) {
 }
 
 func (m *FileMutex) Lock() {
-	m.mu.Lock()
 	if err := syscall.Flock(m.fd, syscall.LOCK_EX); err != nil {
 		panic(err)
 	}
@@ -42,11 +39,9 @@ func (m *FileMutex) Unlock() {
 	if err := syscall.Flock(m.fd, syscall.LOCK_UN); err != nil {
 		panic(err)
 	}
-	m.mu.Unlock()
 }
 
 func (m *FileMutex) RLock() {
-	m.mu.RLock()
 	if err := syscall.Flock(m.fd, syscall.LOCK_SH); err != nil {
 		panic(err)
 	}
@@ -56,7 +51,6 @@ func (m *FileMutex) RUnlock() {
 	if err := syscall.Flock(m.fd, syscall.LOCK_UN); err != nil {
 		panic(err)
 	}
-	m.mu.RUnlock()
 }
 
 // Close does an Unlock() combined with closing and unlinking the associated
@@ -67,6 +61,4 @@ func (m *FileMutex) Close() {
 		panic(err)
 	}
 	syscall.Close(m.fd)
-	syscall.Unlink(m.path)
-	m.mu.Unlock()
 }

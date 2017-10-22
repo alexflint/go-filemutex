@@ -188,5 +188,5 @@ func TestSimultaneousLockWithClose(t *testing.T) {
 	assert.Equal(t, "closed", state)
 
 	_, err = os.Stat(path)
-	assert.NotNil(t, err)
+	assert.NoError(t, err)
 }
