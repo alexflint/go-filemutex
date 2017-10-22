@@ -17,8 +17,7 @@ const (
 // FileMutex is similar to sync.RWMutex, but also synchronizes across processes.
 // This implementation is based on flock syscall.
 type FileMutex struct {
-	fd   int
-	path string
+	fd int
 }
 
 func New(filename string) (*FileMutex, error) {
@@ -26,7 +25,7 @@ func New(filename string) (*FileMutex, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &FileMutex{fd: fd, path: filename}, nil
+	return &FileMutex{fd: fd}, nil
 }
 
 func (m *FileMutex) Lock() {
