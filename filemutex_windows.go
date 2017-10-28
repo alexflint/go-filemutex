@@ -90,9 +90,7 @@ func (m *FileMutex) RUnlock() error {
 	return nil
 }
 
-// Close does an Unlock() combined with closing and unlinking the associated
-// lock file. You should create a New() FileMutex for every Lock() attempt if
-// using Close().
+// Close unlocks the lock and closes the underlying file descriptor.
 func (m *FileMutex) Close() error {
 	var ol syscall.Overlapped
 	if err := unlockFileEx(m.fd, 0, 1, 0, &ol); err != nil {
