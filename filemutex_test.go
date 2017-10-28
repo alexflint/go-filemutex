@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,7 +39,7 @@ func TestRLockUnlock(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestSimultaneousLock(t *testing.T) {
+func TestClose(t *testing.T) {
 	dir, err := ioutil.TempDir("", "")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
@@ -49,34 +48,8 @@ func TestSimultaneousLock(t *testing.T) {
 	m, err := New(path)
 	require.NoError(t, err)
 
-	err = m.Lock()
-	require.NoError(t, err)
-
-	state := "waiting"
-	ch := make(chan struct{})
-	go func() {
-		err = m.Lock()
-		require.NoError(t, err)
-		state = "acquired"
-		ch <- struct{}{}
-
-		<-ch
-		err = m.Unlock()
-		require.NoError(t, err)
-		state = "released"
-		ch <- struct{}{}
-	}()
-
-	assert.Equal(t, "waiting", state)
-	err = m.Unlock()
-	require.NoError(t, err)
-
-	<-ch
-	assert.Equal(t, "acquired", state)
-	ch <- struct{}{}
-
-	<-ch
-	assert.Equal(t, "released", state)
+	m.Lock()
+	m.Close()
 }
 
 func TestLockErrorsAreRecoverable(t *testing.T) {

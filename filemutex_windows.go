@@ -5,7 +5,6 @@
 package filemutex
 
 import (
-	"sync"
 	"syscall"
 	"unsafe"
 )
@@ -47,7 +46,6 @@ func unlockFileEx(h syscall.Handle, reserved, locklow, lockhigh uint32, ol *sysc
 // FileMutex is similar to sync.RWMutex, but also synchronizes across processes.
 // This implementation is based on flock syscall.
 type FileMutex struct {
-	mu sync.RWMutex
 	fd syscall.Handle
 }
 
@@ -61,10 +59,8 @@ func New(filename string) (*FileMutex, error) {
 }
 
 func (m *FileMutex) Lock() error {
-	m.mu.Lock()
 	var ol syscall.Overlapped
 	if err := lockFileEx(m.fd, lockfileExclusiveLock, 0, 1, 0, &ol); err != nil {
-		m.mu.Unlock()
 		return err
 	}
 	return nil
@@ -75,15 +71,12 @@ func (m *FileMutex) Unlock() error {
 	if err := unlockFileEx(m.fd, 0, 1, 0, &ol); err != nil {
 		return err
 	}
-	m.mu.Unlock()
 	return nil
 }
 
 func (m *FileMutex) RLock() error {
-	m.mu.RLock()
 	var ol syscall.Overlapped
 	if err := lockFileEx(m.fd, 0, 0, 1, 0, &ol); err != nil {
-		m.mu.RUnlock()
 		return err
 	}
 	return nil
@@ -94,6 +87,14 @@ func (m *FileMutex) RUnlock() error {
 	if err := unlockFileEx(m.fd, 0, 1, 0, &ol); err != nil {
 		return err
 	}
-	m.mu.RUnlock()
 	return nil
+}
+
+// Close unlocks the lock and closes the underlying file descriptor.
+func (m *FileMutex) Close() error {
+	var ol syscall.Overlapped
+	if err := unlockFileEx(m.fd, 0, 1, 0, &ol); err != nil {
+		return err
+	}
+	return syscall.Close(m.fd)
 }
