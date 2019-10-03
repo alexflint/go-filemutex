@@ -24,6 +24,27 @@ func TestLockUnlock(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestTryLockUnlock(t *testing.T) {
+	dir, err := ioutil.TempDir("", "")
+	require.NoError(t, err)
+	defer os.RemoveAll(dir)
+
+	path := filepath.Join(dir, "x")
+	m, err := New(path)
+	require.NoError(t, err)
+	m2, err := New(path)
+	require.NoError(t, err)
+
+	err = m.Lock()
+	require.NoError(t, err)
+	err = m2.TryLock()
+	require.Error(t, err)
+	err = m.Unlock()
+	require.NoError(t, err)
+	err = m2.TryLock()
+	require.NoError(t, err)
+}
+
 func TestRLockUnlock(t *testing.T) {
 	dir, err := ioutil.TempDir("", "")
 	require.NoError(t, err)
