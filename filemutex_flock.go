@@ -35,8 +35,15 @@ func (m *FileMutex) Lock() error {
 	return nil
 }
 
+var AlreadyLocked = errors.New("lock already acquired")
+
 func (m *FileMutex) TryLock() error {
 	if err := syscall.Flock(m.fd, syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		if errno, ok := err.(syscall.Errno); ok {
+			if errno == syscall.EWOULDBLOCK {
+				return AlreadyLocked
+			}
+		}
 		return err
 	}
 	return nil
