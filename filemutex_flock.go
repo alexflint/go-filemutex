@@ -35,6 +35,13 @@ func (m *FileMutex) Lock() error {
 	return nil
 }
 
+func (m *FileMutex) TryLock() error {
+	if err := syscall.Flock(m.fd, syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (m *FileMutex) Unlock() error {
 	if err := syscall.Flock(m.fd, syscall.LOCK_UN); err != nil {
 		return err
