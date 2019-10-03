@@ -38,7 +38,7 @@ func TestTryLockUnlock(t *testing.T) {
 	err = m.Lock()
 	require.NoError(t, err)
 	err = m2.TryLock()
-	require.Error(t, err)
+	require.Equal(t, AlreadyLocked, err)
 	err = m.Unlock()
 	require.NoError(t, err)
 	err = m2.TryLock()
