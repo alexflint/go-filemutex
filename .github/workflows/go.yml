@@ -10,7 +10,7 @@ jobs:
 
   build_and_test:
     name: Build and test
-    runs-on: ['ubuntu-latest', 'windows-latest']
+    runs-on: windows-latest
 
     strategy:
       fail-fast: false
