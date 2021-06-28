@@ -8,27 +8,49 @@ on:
 
 jobs:
 
-  build_and_test:
-    name: Build and test
-    runs-on: windows-latest
+  # Unfortunately there is much duplication below. I have not found a
+  # way to set "runs-on" to an array of windows, linux, and macos
+  # runners, so instead I duplicated the whole thing three times.
 
+  linux_build_and_test:
+    name: Build and test (Linux)
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
         go: ['1.13', '1.14', '1.15', '1.16']
-
     steps:
     - id: go
       name: Set up Go
       uses: actions/setup-go@v1
       with:
         go-version: ${{ matrix.go }}
-
     - name: Checkout
       uses: actions/checkout@v2
-
     - name: Build
       run: go build -v .
-    
+    - name: Test
+      run: go test -v -coverprofile=profile.cov .
+    - name: Send coverage
+      run: bash <(curl -s https://codecov.io/bash) -f profile.cov
+
+  # I have not managed to get coverage reporting working on windows
+  windows_build_and_test:
+    name: Build and test (Windows)
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ['1.13', '1.14', '1.15', '1.16']
+    steps:
+    - id: go
+      name: Set up Go
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go }}
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build
+      run: go build -v .    
     - name: Test
       run: go test -v .
