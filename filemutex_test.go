@@ -73,6 +73,18 @@ func TestClose(t *testing.T) {
 	m.Close()
 }
 
+func TestOnlyClose(t *testing.T) {
+	dir, err := ioutil.TempDir("", "")
+	require.NoError(t, err)
+	defer os.RemoveAll(dir)
+
+	path := filepath.Join(dir, "x")
+	m, err := New(path)
+	require.NoError(t, err)
+
+	require.NoError(t, m.Close())
+}
+
 func TestLockErrorsAreRecoverable(t *testing.T) {
 	dir, err := ioutil.TempDir("", "")
 	require.NoError(t, err)
