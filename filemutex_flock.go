@@ -2,11 +2,17 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris
 // +build darwin dragonfly freebsd linux netbsd openbsd solaris
 
 package filemutex
 
-import "golang.org/x/sys/unix"
+import (
+	"os"
+	"path/filepath"
+
+	"golang.org/x/sys/unix"
+)
 
 const (
 	mkdirPerm = 0750
@@ -19,7 +25,19 @@ type FileMutex struct {
 }
 
 func New(filename string) (*FileMutex, error) {
-	fd, err := unix.Open(filename, unix.O_CREAT|unix.O_RDONLY, mkdirPerm)
+	return new(filename, mkdirPerm)
+}
+
+func NewWithUnixFilePerm(filename string, perm uint32) (*FileMutex, error) {
+	return new(filename, perm)
+}
+
+func new(filename string, perm uint32) (*FileMutex, error) {
+	dir := filepath.Dir(filename)
+	if err := os.MkdirAll(dir, os.FileMode(perm)); err != nil {
+		return nil, err
+	}
+	fd, err := unix.Open(filename, unix.O_CREAT|unix.O_RDONLY, perm)
 	if err != nil {
 		return nil, err
 	}
