@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	mkdirPerm = 0750
+	mkdirPerm os.FileMode = 0750
 )
 
 // FileMutex is similar to sync.RWMutex, but also synchronizes across processes.
@@ -28,16 +28,16 @@ func New(filename string) (*FileMutex, error) {
 	return new(filename, mkdirPerm)
 }
 
-func NewWithUnixFilePerm(filename string, perm uint32) (*FileMutex, error) {
+func NewWithMode(filename string, perm os.FileMode) (*FileMutex, error) {
 	return new(filename, perm)
 }
 
-func new(filename string, perm uint32) (*FileMutex, error) {
+func new(filename string, perm os.FileMode) (*FileMutex, error) {
 	dir := filepath.Dir(filename)
 	if err := os.MkdirAll(dir, os.FileMode(perm)); err != nil {
 		return nil, err
 	}
-	fd, err := unix.Open(filename, unix.O_CREAT|unix.O_RDONLY, perm)
+	fd, err := unix.Open(filename, unix.O_CREAT|unix.O_RDONLY, uint32(perm))
 	if err != nil {
 		return nil, err
 	}
