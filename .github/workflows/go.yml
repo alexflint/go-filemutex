@@ -7,67 +7,28 @@ on:
     branches: [ master ]
 
 jobs:
+  build_and_test:
+    name: Build and test
+    runs-on: ${{ matrix.os }}
 
-  # Unfortunately there is much duplication below. I have not found a
-  # way to set "runs-on" to an array, so instead I duplicated the
-  # whole thing three times.
-
-  linux_build_and_test:
-    name: Build and test (Linux)
-    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        go: ['1.13', '1.14', '1.15', '1.16']
+        go: ['1.18', '1.19']
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+
     steps:
     - id: go
       name: Set up Go
       uses: actions/setup-go@v1
       with:
         go-version: ${{ matrix.go }}
+
     - name: Checkout
       uses: actions/checkout@v2
+
     - name: Build
       run: go build -v .
-    - name: Test
-      run: go test -v .
 
-  windows_build_and_test:
-    name: Build and test (Windows)
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        go: ['1.13', '1.14', '1.15', '1.16']
-    steps:
-    - id: go
-      name: Set up Go
-      uses: actions/setup-go@v1
-      with:
-        go-version: ${{ matrix.go }}
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Build
-      run: go build -v .    
-    - name: Test
-      run: go test -v .
-
-  macos_build_and_test:
-    name: Build and test (macOS)
-    runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        go: ['1.13', '1.14', '1.15', '1.16']
-    steps:
-    - id: go
-      name: Set up Go
-      uses: actions/setup-go@v1
-      with:
-        go-version: ${{ matrix.go }}
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Build
-      run: go build -v .
     - name: Test
       run: go test -v .
