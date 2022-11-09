@@ -9,7 +9,6 @@ package filemutex
 
 import (
 	"os"
-	"path/filepath"
 
 	"golang.org/x/sys/unix"
 )
@@ -33,10 +32,6 @@ func NewWithMode(filename string, perm os.FileMode) (*FileMutex, error) {
 }
 
 func new(filename string, perm os.FileMode) (*FileMutex, error) {
-	dir := filepath.Dir(filename)
-	if err := os.MkdirAll(dir, os.FileMode(perm)); err != nil {
-		return nil, err
-	}
 	fd, err := unix.Open(filename, unix.O_CREAT|unix.O_RDONLY, uint32(perm))
 	if err != nil {
 		return nil, err
