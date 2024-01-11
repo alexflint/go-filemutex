@@ -2,19 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris
 // +build darwin dragonfly freebsd linux netbsd openbsd solaris
 
 package filemutex
 
-import (
-	"os"
-
-	"golang.org/x/sys/unix"
-)
+import "golang.org/x/sys/unix"
 
 const (
-	mkdirPerm os.FileMode = 0750
+	mkdirPerm = 0750
 )
 
 // FileMutex is similar to sync.RWMutex, but also synchronizes across processes.
@@ -24,15 +19,7 @@ type FileMutex struct {
 }
 
 func New(filename string) (*FileMutex, error) {
-	return new(filename, mkdirPerm)
-}
-
-func NewWithMode(filename string, perm os.FileMode) (*FileMutex, error) {
-	return new(filename, perm)
-}
-
-func new(filename string, perm os.FileMode) (*FileMutex, error) {
-	fd, err := unix.Open(filename, unix.O_CREAT|unix.O_RDONLY, uint32(perm))
+	fd, err := unix.Open(filename, unix.O_CREAT|unix.O_RDONLY, mkdirPerm)
 	if err != nil {
 		return nil, err
 	}
